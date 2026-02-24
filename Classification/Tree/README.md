@@ -8,7 +8,7 @@
 | $d$ | $\mathbb{R}$ | the number of features |
 | $K$ | $\mathbb{R}$ | the number of labels |
 | $x_i$ | - | a training data |
-| $y_i$ | $\mathbb{R}$ | the classification label of $x_i$ $(1,\cdots,K)$ |   
+| $y_i$ | $\mathbb{R}$ | the classification label $(1,\cdots,K)$ of $x_i$ |   
 | $D$ | - | $\{x_1,\cdots,x_n\}$ |
 | $C_k$ | - | $\{x_i\in D:y_i=k\}$ |
 | $D_{a_i}$ | - | $\{x_j\in D:A(x_j)=a_i\}$ |
