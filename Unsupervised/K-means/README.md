@@ -9,6 +9,7 @@
 | $K$ | $\mathbb{R}$ | the number of label types |
 | $X$ | $\mathbb{R^{n \times d}}$ | the input data |    
 
+## Formulas
 
 - prediction
 

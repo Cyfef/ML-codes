@@ -17,7 +17,7 @@
 | $y_i$ | $\mathbb{R}$ | the classification label (0/1) | 
 | $y$ | $\mathbb{R^n}$ | $(y_1,\cdots,y_n)^\top$ |  
 
-
+## Formulas
 
 - prediction
 

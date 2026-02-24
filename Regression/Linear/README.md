@@ -13,6 +13,8 @@
 | $X$ | $\mathbb{R^{n \times (d+1)}}$ | $(X_0,1)$ |
 | $\hat{w}$ | $\mathbb{R^{d+1}}$ | $(w^\top,b^\top)^\top$ |
 
+## Formulas
+
 - prediction
 
   $$

@@ -18,7 +18,7 @@
 | $H(D,A)$ | $\mathbb{R}$ | the information entropy of feature $A$ in dataset $D$ |
 
 
-
+## Formulas
 
 - entropy
 
