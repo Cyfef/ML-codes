@@ -66,3 +66,10 @@
     $$
         F_T(x)=\sum_{t\in [T]}\alpha_t f_t(x)
     $$
+    
+    <div style="margin-left: 2em;"> 
+    
+    prediction is $\mathrm{sign}(F_T(x))$ 
+
+- Weak classifier: a decision stump
+  

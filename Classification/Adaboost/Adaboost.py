@@ -1,5 +1,6 @@
 import torch
 from enum import Enum
+from typing import List
 
 class PurityMeasure(Enum):
     IG="Information Gain"
@@ -8,139 +9,178 @@ class PurityMeasure(Enum):
 
 class WeakClassifier:
     '''
-    Weak Classifier: decision stump
+    Weak Classifier: a decision stump
     '''
     def __init__(
             self,
-            alpha,
-            measure_type:PurityMeasure
+            measure_type:PurityMeasure=PurityMeasure.GINI
     ):
-        self.tree=None
+        '''
+        Args:
+            measure_type: 
+        '''
+        self.feature=None
+        self.tau=None
+
+        self.low_pred=None
+        self.high_pred=None
+
         self.alpha=None
         self.measure_type=measure_type
 
-    def train(
+    def fit(
             self,
-            X:torch.tensor,
-    ):
-        pass
-
-    @staticmethod
-    def H(
-            y:torch.tensor      #(n,1)
-    )->float:
+            X:torch.Tensor,             #(n,d)
+            y:torch.Tensor,             #(n,1)
+            weights:torch.Tensor,       #(n,)
+    )->None:
         '''
-        Calculate the information entropy of the dataset with respect to its empirical label distribution
+        let model fit the training data 
 
         Args:
-            y:training labels
+            X:training data
+            y:gt labels
+            weights: sample weights
         '''
-        label_types, label_counts = torch.unique(y, return_counts=True)     #(K,),(K,)
-        n=y.shape[0]
-        entropy=-torch.sum((label_counts/n)*torch.log2(label_counts/n))
-        return entropy
+        n,d=X.shape
 
-    @classmethod
-    def H_mid_A(
-            cls,
-            X:torch.tensor,     #(n,d)
-            y:torch.tensor,     #(n,1)
-            A:int
-    )->float:
+        best_feature=None
+        beat_tau=None
+        best_gini=float('inf')
+
+        for A in range(d):
+            val_types=torch.unique(X[:,A])    #(m,)
+            m=val_types.shape[0]
+
+            if m<=1:        # no thresholds to fit
+                continue
+
+            taus=(val_types[:-1] + val_types[1:]) / 2.0
+            for tau in taus:
+                mask=X[:, A] > tau
+
+                low_weights=weights[~mask]
+                high_weights=weights[mask]
+                low_y=y[~mask]
+                high_y=y[mask]
+
+                low_gini=self.Gini_weighted(low_y,low_weights)
+                high_gini=self.Gini_weighted(high_y,high_weights)
+
+                gini_mid_A=low_weights.sum()*low_gini+high_weights.sum()*high_gini
+                gini_mid_A=gini_mid_A.item()
+                
+                if gini_mid_A<best_gini:
+                    best_gini=gini_mid_A
+                    best_feature=A
+                    best_tau=tau.item()
+                    self.low_pred=self.majority_label(low_y,low_weights)
+                    self.high_pred=self.majority_label(high_y,high_weights)
+
+        if best_feature is None:
+            best_feature=0
+            best_tau=0.0
+            self.high_pred=self.low_pred=self.majority_label(y,weights)
+
+        self.feature,self.tau=best_feature,best_tau
+    
+    def predict(
+            self,
+            X:torch.Tensor,     #(m,d)
+    )->torch.Tensor:
         '''
-        Calculate the conditional information entropy of dataset given the feature
-
         Args:
-            X:training dataset
-            y:training labels
-            A:the feature index(0~d-1)
+            X: the data to be predicted
         '''
-        val_types, val_counts=torch.unique(X[:,A], return_counts=True)    #(m,),(m,)
-        n=X.shape[0]
-        ent_fea=[]
-        for val in val_types:
-            mask=(X[:,A]==val)
-            y_val=y[mask]
-            ent_fea.append(cls.H(y_val))
-        ent_fea=torch.tensor(ent_fea)
-        entropy=torch.sum(ent_fea*(val_counts/n))
-        return entropy
-
-    @staticmethod
-    def H_and_A(
-            X:torch.tensor,     #(n,d)
-            A:int
-    )->float:
-        '''
-        Calculate the information entropy of a feature in dataset
+        X_A=X[:,self.feature]
+        y_pred=torch.where(X_A>self.tau,self.high_pred,self.low_pred)
+        return y_pred.unsqueeze(1)    #(m,)   
         
-        Args:
-            X:training dataset
-            A:the feature index(0~d-1)
+    @staticmethod
+    def Gini_weighted(
+        y:torch.Tensor,         #(n,1)
+        weights:torch.Tensor,   #(n,)
+    )->float:
         '''
-        val_types, val_counts=torch.unique(X[:,A], return_counts=True)    #(m,),(m,)
-        n=X.shape[0]
-        entropy=-torch.sum((val_counts/n)*torch.log2(val_counts/n))
-        return entropy
+        Weighted Gini index 
+
+        Args:
+            y:the labels vector
+            weights:the label weights
+        '''
+        pos_weight = weights[(y == 1).squeeze()].sum()
+        neg_weight = weights[(y == -1).squeeze()].sum()
+        total = pos_weight + neg_weight
+        gini = 1.0 - (pos_weight/total)**2 - (neg_weight/total)**2
+        return gini
     
     @staticmethod
-    def Gini(
-        X:torch.tensor,     #(n,d)
-        y:torch.tensor,     #(n,1)
-    ):
-        label_types, label_counts = torch.unique(y, return_counts=True)     #(K,),(K,)
-        n=X.shape[0]
-        return 1-torch.sum((label_counts/n)**2)
+    def majority_label(
+        y:torch.Tensor,         #(n,1)
+        weights:torch.Tensor,   #(n,)
+    )->int:
+        """
+        Return the class (+1 or -1) with the largest total weight
         
-    @classmethod
-    def Gini_mid_A(
-        cls,
-        X:torch.tensor,     #(n,d)
-        y:torch.tensor,     #(n,1)
-        A:int,
-    ):
-        val_types, val_counts=torch.unique(X[:,A], return_counts=True)    #(m,),(m,)
-        n=X.shape[0]
-        gini_fea=[]
-        for val in val_types:
-            mask=(X[:,A]==val)
-            X_val=X[mask]
-            y_val=y[mask]
-            gini_fea.append(cls.Gini(X_val,y_val))
-        gini_fea=torch.tensor(gini_fea)
-        gini=torch.sum(gini_fea*(val_counts/n))
-        return gini
-        
-    def cal_measure(
-            self,
-            X:torch.tensor,     #(n,d)
-            y:torch.tensor,     #(n,1)
-            A:int,
-    ):
-        '''
-        Calculate the purity measure of a feature
-
         Args:
-            X:training dataset
-            y:training labels
-            A:the feature index(0~d-1)
-        '''
-        if self.measure_type==PurityMeasure.IG:
-            return self.H(y)-self.H_mid_A(X,y,A)
-        elif self.measure_type==PurityMeasure.GR:
-            denominator = self.H_and_A(X, A)
-            if denominator == 0:
-                return 0.0  
-            return (self.H(y) - self.H_mid_A(X, y, A)) / denominator
-        elif self.measure_type==PurityMeasure.GINI:
-            return -self.Gini_mid_A(X,y,A)
-
+            y:the labels vector
+            weights:the label weights
+        """
+        pos_weight = weights[(y == 1).squeeze()].sum()
+        neg_weight = weights[(y == -1).squeeze()].sum()
+        return 1 if pos_weight >= neg_weight else -1
 
 class Adaboost:
     def __init__(
             self,
-            
+            T:int,
     ):
-        pass
+        '''
+        Args:
+            T:number of weak classifiers/iterations
+        '''
+        self.T=T
+        self.clfs=[]
+
+    def fit(
+            self,
+            X:torch.Tensor,     #(n,d)
+            y:torch.Tensor,     #(n,)
+    )->None:
+        n,d=X.shape
+        weights=torch.ones(n)/n
+
+        # train each weak classifier
+        for _ in range(self.T):
+            f_t=WeakClassifier()
+            f_t.fit(X,y,weights)
+
+            y_pred_t=torch.tensor(f_t.predict(X)).squeeze()
+            eps_t=weights[y_pred_t!=y].sum()
+
+            if eps_t>0.5:
+                break
+            
+            alpha_t=0.5 * torch.log((1-eps_t)/eps_t)
+            f_t.alpha=alpha_t
+
+            weights_bar=weights*torch.exp(-alpha_t*y*y_pred_t)
+            weights=weights_bar/weights_bar.sum()
+
+            self.clfs.append(f_t)
+    
+    def predict(
+            self,
+            X:torch.Tensor      #(m,d)
+    )->List:
+        m=X.shape[0]
+        preds=torch.zeros(m)
+
+        for f in self.clfs:
+            y_pred=f.predict(X)
+            preds+=f.alpha*y_pred
+
+        preds=torch.sign(preds)
+        return preds.tolist()
 
     
