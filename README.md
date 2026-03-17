@@ -12,10 +12,9 @@ pip install -r requirements.txt
 
 TODO:
 1. Logistic
-2. PCA
-3. SVM
-4. Softmax
-5. Lasso
-6. Ridge
-7. MoG
-8. GP
+2. SVM
+3. Softmax
+4. Lasso
+5. Ridge
+6. MoG
+7. GP
