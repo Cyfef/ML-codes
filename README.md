@@ -18,3 +18,4 @@ TODO:
 5. Ridge
 6. MoG
 7. GP
+8. Kmeans
