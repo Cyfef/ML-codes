@@ -19,3 +19,7 @@ TODO:
 6. MoG
 7. GP
 8. Kmeans
+9. AE
+10. VAE
+11. Diffusion
+12. t-SNE

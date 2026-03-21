@@ -1,4 +1,4 @@
-# Mixture of Gaussians
+# Mixture of Gaussians (MoG)
 
 ## Settings
 
