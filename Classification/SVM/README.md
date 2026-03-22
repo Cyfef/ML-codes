@@ -23,7 +23,7 @@
 
 ## Formulas
 
-- Kernel function
+- Kernel functions
   $$
   K(x_i,x_j)=\varphi(x_i)^\top \varphi(x_j)
   $$
