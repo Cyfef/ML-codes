@@ -44,6 +44,7 @@
 - Update Step (M-step)
 
     Update each centroid as the mean of its assigned points:
+    
 
     $$
         \mu_j =
@@ -125,22 +126,3 @@
     - Assignments do not change
     - Objective improvement below threshold
     - Maximum number of iterations reached
-
----
-
-- Properties
-
-    - Unsupervised learning algorithm
-    - Optimizes a **non-convex objective**
-    - Sensitive to initialization
-    - Assumes spherical, equal-size clusters
-    - Time complexity per iteration: $\mathcal{O}(nkd)$
-
----
-
-- Summary
-
-    - Alternates between **assignment** and **update**
-    - Finds locally optimal cluster structure
-    - Simple and scalable
-    - Widely used for clustering and vector quantization

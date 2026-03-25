@@ -16,10 +16,9 @@ TODO:
 3. Softmax
 4. Lasso
 5. Ridge
-6. MoG
-7. GP
-8. Kmeans
-9. AE
-10. VAE
-11. Diffusion
-12. t-SNE
+6. GP
+7. Kmeans
+8. AE
+9.  VAE
+10. Diffusion
+11. t-SNE
