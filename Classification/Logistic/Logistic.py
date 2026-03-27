@@ -10,8 +10,8 @@ class Logistic_Regression():
 
     def predict(
             self,
-            X_0:torch.tensor    #(n,d)
-    ) -> torch.tensor :
+            X_0:torch.Tensor    #(n,d)
+    ) -> torch.Tensor :
         '''
         Prediction
 
@@ -31,9 +31,9 @@ class Logistic_Regression():
     
     def MLEloss(
             self,
-            X_0:torch.tensor,   #(n,d)
-            y:torch.tensor,     #(n,1)
-    ) -> torch.tensor:
+            X_0:torch.Tensor,   #(n,d)
+            y:torch.Tensor,     #(n,1)
+    ) -> torch.Tensor:
         '''
         Calculate MLE loss
 
@@ -49,12 +49,13 @@ class Logistic_Regression():
         ones=torch.ones(n,1)
         X=torch.cat((X_0,ones),dim=1)
         loss=-self.w_hat.T @ X.T @ y + torch.sum(torch.log(torch.exp(self.w_hat.T @ X.T)+1))
+        loss/=n
         return loss
 
     def train(
             self,
-            X_0:torch.tensor,   #(n,d)
-            y:torch.tensor,     #(n,1)
+            X_0:torch.Tensor,   #(n,d)
+            y:torch.Tensor,     #(n,1)
             iterations:int,     
             lr:float,
     ) -> None:
@@ -80,6 +81,7 @@ class Logistic_Regression():
 
         for iteration in range(1,iterations+1):
             grad = -X.T @ y + X.T @ torch.sigmoid(X @ self.w_hat)    #(d+1,1)
+            grad/=n
             self.w_hat -= self.lr * grad
 
             if iteration % 10 == 0 :

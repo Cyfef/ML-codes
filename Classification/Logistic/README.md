@@ -30,12 +30,12 @@
 - loss function 
 
   $$
-    \mathcal L(\hat w) = -\sum_{i\in[n]}y_i\log\sigma(\hat w^\top\hat x_i)+(1-y_i)\log(1-\sigma(\hat w^\top\hat x_i))
+    \mathcal L(\hat w) = -\sum_{i\in[n]}\left[y_i\log\sigma(\hat w^\top\hat x_i)+(1-y_i)\log(1-\sigma(\hat w^\top\hat x_i))\right]
     = -\hat{w}^\top X^\top y + \sum_{i\in[n]} \log(1+e^{\hat{w}^\top \hat{x_i}})
   $$
 
 - optimization
 
   $$
-    \frac{\partial\mathcal L(\hat w)}{\partial \hat w} = -X^\top y + \sum_{i\in[n]} \sigma(\hat{w}^\top \hat{x_i})\hat{x_i}
+    \frac{\partial\mathcal L(\hat w)}{\partial \hat w} = -X^\top y + \sum_{i\in[n]} \sigma(\hat{w}^\top \hat{x_i})\hat{x_i}=X^\top (\hat{y}​−y)
   $$
