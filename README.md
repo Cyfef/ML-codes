@@ -12,12 +12,11 @@ pip install -r requirements.txt
 
 TODO:
 
-6. GP
-7. Logistic
-8. Softmax
-9. Lasso
-10. Ridge
-11. Kmeans
-12. AE
-13. VAE
-14. Diffusion
+1. GP
+2. SVM
+3. Lasso
+4. Ridge
+5. Kmeans
+6. AE
+7.  VAE
+8.  Diffusion
