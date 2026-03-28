@@ -14,9 +14,7 @@ TODO:
 
 1. GP
 2. SVM
-3. Lasso
-4. Ridge
-5. Kmeans
-6. AE
-7.  VAE
-8.  Diffusion
+3. Kmeans
+4. AE
+5.  VAE
+6.  Diffusion
