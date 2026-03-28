@@ -1,14 +1,14 @@
 import torch
 
-class Linear_Regression():
+class LinearRegression():
     '''Linear Regression'''
     def __init__(self) -> None:
         self.w_hat=None     #(d+1,1)
         
     def closed_form_solution(
             self,
-            X_0:torch.tensor,   #(n,d)
-            y:torch.tensor      #(n,1)
+            X_0:torch.Tensor,   #(n,d)
+            y:torch.Tensor      #(n,1)
     ) -> None :
         '''
         Calculate the closed-form solution
@@ -25,8 +25,8 @@ class Linear_Regression():
 
     def predict(
             self,
-            X_0:torch.tensor    #(n,d)
-    ) -> torch.tensor :
+            X_0:torch.Tensor    #(n,d)
+    ) -> torch.Tensor :
         '''
         Prediction
         
