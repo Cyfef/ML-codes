@@ -1,25 +1,27 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 MLPAE_ENCODING_DIM = 64
 
 class MLPAutoencoder(nn.Module):
-    def __init__(self, encoding_dim, img_width, img_height, img_channel=3):
-        super(MLPAutoencoder, self).__init__()
+    def __init__(
+            self, 
+            encoding_dim:int,
+            img_width:int, 
+            img_height:int, 
+            img_channel:int=3
+    ):
         '''
-        TODO: Define the MLP autoencoder structure.
+        Define the MLP autoencoder structure.
         
-        Steps:
-        1. Design the encoder with multiple layers to reduce the dimensionality.
-        2. Design the decoder to reconstruct the input from the encoded representation.
-        3. Ensure the architecture supports end-to-end training.
+        Args:
+            encoding_dim: the dimension of the latent vector produced by the encoder
         '''
+        super().__init__()
+        
         self.img_width = img_width
         self.img_height = img_height
         self.img_channel = img_channel
-
-        # input dim
         self.input_dim = img_channel * img_width * img_height 
 
         # Encoder
@@ -41,17 +43,14 @@ class MLPAutoencoder(nn.Module):
             nn.Sigmoid()   
         )
 
-    def forward(self, x):
+    def forward(
+            self, 
+            x:torch.Tensor      #(Batch_size, IMG_CHANNEL, IMG_WIDTH, IMG_HEIGHT)
+    ):
         '''
-        x: input images, dim: (Batch_size, IMG_CHANNEL, IMG_WIDTH, IMG_HEIGHT)
-        return x: reconstructed images, dim: (Batch_size, IMG_CHANNEL, IMG_WIDTH, IMG_HEIGHT)
-
-        TODO: Define the forward pass of the model.
-        
-        Steps:
-        1. Process the input through the encoder.
-        2. Pass the encoded representation through the decoder.
-        3. Return the reconstructed output.
+        The forward pass of the model
+        Args:
+            x: input images
         '''
         batch_size = x.size(0)
 
