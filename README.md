@@ -15,6 +15,4 @@ TODO:
 1. GP
 2. SVM
 3. Kmeans
-4. AE
-5.  VAE
-6.  Diffusion
+4.  Diffusion
