@@ -33,14 +33,14 @@ class KMeans:
         for _ in range(self.iterations):
             # Assignment step
             assigns=torch.tensor(self.predict(X))
-            # Updata step
+            # Update step
             new_centers=[]
             for k in range(self.K):
                 mask=(assigns==k)
                 X_k=X[mask,:]
 
                 if X_k.size(0)==0:
-                    #empty
+                    # empty
                     new_centers.append(self.centers[k])
                 else:
                     means=X_k.mean(dim=0)   #(d,)
@@ -57,7 +57,6 @@ class KMeans:
         Args:
             X:data to be fit
         '''
-        n=X.shape[0]
         diffs=X[:,None,:]-self.centers[None,:,:]    #(n,K,d)
         dists=torch.sum(diffs**2,dim=2)     #(n,K)
         y_pred=torch.argmin(dists,dim=1)    #(n,)
