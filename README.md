@@ -1,6 +1,8 @@
 # Machine-Learning-PyTorch-Codes
-This repo contains codes of many ML algorithms.  
+This repo contains codes of many traditional ML algorithms.  
 
+
+## Environment
 
 ```
 conda create -n ml python=3.11 -y
@@ -8,9 +10,7 @@ conda activate ml
 pip install -r requirements.txt
 ```
 
+## References
 
-TODO:
-
-1. GP
-2. SVM
-3.  Diffusion
+- https://github.com/MuLabPKU/MachineLearningCourse2025
+- https://github.com/luokn/ml
