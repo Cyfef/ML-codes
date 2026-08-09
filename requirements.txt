@@ -1,4 +1,9 @@
 numpy
 pandas
-torch
+# torch
+# torchvision
+
 matplotlib
+tqdm
+
+kagglehub
