@@ -1,23 +1,11 @@
 import torch
 import torch.nn as nn
-import torch.nn.parallel
-import torch.utils.data
 import torch.nn.functional as F
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]= "TRUE"
-import random
-import torch
-import torch.nn.parallel
-import torch.optim as optim
-import torch.utils.data
-from data import ShapeNetClassficationDataset
-from PointNet import PointNetCls
-import torch.nn.functional as F
-from tqdm import tqdm
-from utils import log_writer, setting
-from os.path import join as pjoin
-import argparse
+
+from wandb_utils import *
 
 
 class PointNetfeat(nn.Module):
@@ -30,7 +18,7 @@ class PointNetfeat(nn.Module):
     def __init__(self, 
                  segmentation = True, 
                  d=1024):
-        super(PointNetfeat, self).__init__()
+        super().__init__()
         self.conv1 = nn.Conv1d(3, 64, kernel_size=1)
         self.conv2 = nn.Conv1d(64, 128, kernel_size=1)
         self.conv3 = nn.Conv1d(128, d, kernel_size=1)
@@ -77,7 +65,7 @@ class PointNetCls(nn.Module):
         k: the number of classes, default is 2.
     '''
     def __init__(self, k=2):
-        super(self).__init__()
+        super().__init__()
         self.feat_extract=PointNetfeat(segmentation = False ,d=1024)
         self.fc1=nn.Linear(1024,512)
         self.fc2=nn.Linear(512,256)
@@ -85,6 +73,8 @@ class PointNetCls(nn.Module):
         
         self.bn1 = nn.BatchNorm1d(512)
         self.bn2 = nn.BatchNorm1d(256)
+
+        self.num_classes=k
 
     def forward(self, x):
         '''
@@ -108,7 +98,7 @@ class PointNetSeg(nn.Module):
             k: the number of classes, default is 2.
     '''
     def __init__(self, k = 2):
-        super(self).__init__()
+        super().__init__()
 
         self.feat_extract=PointNetfeat(segmentation = True,d=1024)
         self.conv1=nn.Conv1d(64+1024,512,1)
@@ -119,6 +109,8 @@ class PointNetSeg(nn.Module):
         self.bn1 = nn.BatchNorm1d(512)
         self.bn2 = nn.BatchNorm1d(256)
         self.bn3 = nn.BatchNorm1d(128)
+
+        self.num_classes=k
 
     def forward(self, x):
         '''
@@ -160,12 +152,15 @@ class PointNetClsTrainer():
               num_epochs:int,
               train_dataloader,
               log_interval:int=10):
+        wandb_init()
         self.model.train()
 
         iter_count=0
         for epoch in range(num_epochs):
-            for i, data in enumerate(train_dataloader, 0):
+            for data in train_dataloader:
                 points, target = data
+                points=points.to(self.device)
+                target=target.to(self.device)
                 target = target[:, 0]
 
                 self.optimizer.zero_grad()
@@ -178,13 +173,21 @@ class PointNetClsTrainer():
 
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().float().mean()
+
+                wandb_log({
+                            "train/loss": loss,
+                            "train/accuracy": correct,
+                            "train/iteration": iter_count,
+                })
                 
                 if iter_count % log_interval == 0:
-                    print(f'[{epoch}: {i}-{iter_count}] train loss: {loss.item()}')
+                    print(f'[{epoch}: {iter_count}] train loss: {loss.item()}, accuracy: {correct.item()}')
         
                 iter_count +=1
         
             self.scheduler.step()
+        wandb_finish()
+     
 
 class PointNetSegTrainer():
     def __init__(self,
@@ -205,17 +208,21 @@ class PointNetSegTrainer():
               num_epochs:int,
               train_dataloader,
               log_interval:int=10):
+        wandb_init()
         self.model.train()
 
         iter_count=0
         for epoch in range(num_epochs):
-            for i, data in enumerate(train_dataloader, 0):
+            for data in train_dataloader:
                 points, target = data
-                target = target[:, 0]
+                points=points.to(self.device)
+                target=target.to(self.device)
 
                 self.optimizer.zero_grad()
 
-                pred, _ = self.model(points)
+                pred = self.model(points)
+                pred = pred.view(-1, self.model.num_classes)
+                target = target.view(-1, 1)[:, 0] - 1
 
                 loss = F.nll_loss(pred, target)
                 loss.backward()
@@ -223,10 +230,18 @@ class PointNetSegTrainer():
 
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().float().mean()
+
+                if iter_count % log_interval==0:
+                    print(f'[{epoch}: {iter_count}] train loss: {loss.item()}, accuracy: {correct.item()}')
                 
-                if iter_count % log_interval == 0:
-                    print(f'[{epoch}: {i}-{iter_count}] train loss: {loss.item()}')
-        
+                wandb_log({
+                            "train/loss": loss,
+                            "train/accuracy": correct,
+                            "train/iteration": iter_count,
+                })
+                
                 iter_count +=1
         
             self.scheduler.step()
+
+        wandb_finish()

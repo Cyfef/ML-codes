@@ -209,20 +209,19 @@ __marimo__/
 
 
 # Model ckpt
-
 /Models/
 
 
 # Data
-
 /Data/flowers/
 /Data/MNIST/
 /Data/Carvana_segmentation/
+/Data/shapenetcore_partanno_segmentation/
 
 
 # vscode
 /.vscode/
 
 # wandb
-
 /CV/UNet/wandb/
+/CV/PointNet/wandb/
