@@ -31,19 +31,17 @@ class CarvanaDataset(Dataset):
     def __getitem__(self, idx):
         name = self.ids[idx]
         
-        img_path = self.images_dir / f"{name}.png"
+        img_path = self.images_dir / f"{name}.jpg"
         image = Image.open(img_path).convert("RGB")  # 3 channels
-        
-        mask_path = self.masks_dir / f"{name}{self.mask_suffix}.png"
-        mask = Image.open(mask_path)
-        
         image = self.transform(image)  
-        
-        mask_np = np.array(mask, dtype=np.int64)    # (H,W), 0 / 255
-        mask_tensor = torch.from_numpy(mask_np).long()
-        mask_tensor = torch.where(mask_tensor == 255, 1, 0)   #  0，1
+
+        mask_path = self.masks_dir / f"{name}{self.mask_suffix}.gif"
+        mask = Image.open(mask_path)  
+        mask = transforms.Resize((256, 256), interpolation=transforms.InterpolationMode.NEAREST)(mask)
+        mask_np = np.array(mask, dtype=np.int64)  
+        mask = torch.from_numpy(mask_np).long()   
         
         return {
             'image': image,
-            'mask': mask_tensor 
+            'mask': mask
         }

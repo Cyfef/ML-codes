@@ -217,8 +217,12 @@ __marimo__/
 
 /Data/flowers/
 /Data/MNIST/
+/Data/Carvana_segmentation/
 
 
 # vscode
-
 /.vscode/
+
+# wandb
+
+/CV/UNet/wandb/

@@ -1,6 +1,6 @@
-import tqdm
 import torch
 import torch.nn as nn
+from wandb_utils import *
 
 class Double_Conv_block(nn.Module):
     def __init__(
@@ -42,6 +42,8 @@ class UNet(nn.Module):
 
         self.conv_last=nn.Conv2d(64,num_class,kernel_size=1)
 
+        self.num_class=num_class
+
     def forward(
             self,
             x:torch.Tensor
@@ -82,35 +84,42 @@ class UNetTrainer():
                  device):
             
         self.model=model.to(device)
-        self.optimizer=optimizer.to(device)
+        self.optimizer=optimizer
     
         self.dtype=dtype
         self.device = device
 
     def train(self,
-                  num_epochs:int,
-                  train_dataloader,
-                  log_interval:int=50
-                  ):
-            self.model.train()
-            iter_count=0
+              num_epochs:int,
+              train_dataloader,
+              log_interval:int=50):
+
+        wandb_init()
+        
+        self.model.train()
+        iter_count=0
     
-            for epoch in range(1,num_epochs+1):
-                for imgs,labels in tqdm.tqdm(train_dataloader):
-                    batch_size=labels.shape[0]
+        for epoch in range(1,num_epochs+1):
+            for batch in train_dataloader:
+                imgs = batch['image'].to(self.device, dtype=torch.float32)   
+                labels = batch['mask'].to(self.device, dtype=torch.long)     
     
-                    imgs=imgs.to(self.device)
-                    labels=labels.to(self.device)
+                self.optimizer.zero_grad()
     
-                    self.optimizer.zero_grad()
+                logits=self.model(imgs)
+                loss=torch.nn.functional.cross_entropy(logits,labels)
     
-                    logits=self.model(imgs)
-                    loss=self.CELoss(logits,labels)
+                loss.backward()
+                self.optimizer.step()
+
+                wandb_log({
+                    "train/loss": loss,
+                    "epoch": epoch,
+                    })
     
-                    loss.backward()
-                    self.optimizer.step()
+                if iter_count % log_interval == 0:
+                    print(f'Iter: {iter_count}, Loss: {loss.item():.4}')
     
-                    if iter_count % log_interval == 0:
-                        print(f'Iter: {iter_count}, Loss: {loss.item():.4}')
-    
-                    iter_count += 1
+                iter_count += 1
+
+        wandb_finish()

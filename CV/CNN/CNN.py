@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import tqdm
 
 class ConvNet(nn.Module):
     def __init__(self, num_class=10):
@@ -40,7 +39,7 @@ class ConvNetTrainer():
                  device):
         
         self.model=model.to(device)
-        self.optimizer=optimizer.to(device)
+        self.optimizer=optimizer
 
         self.dtype=dtype
         self.device = device
@@ -55,7 +54,7 @@ class ConvNetTrainer():
         iter_count=0
 
         for epoch in range(1,num_epochs+1):
-            for imgs,labels in tqdm.tqdm(train_dataloader):
+            for imgs,labels in train_dataloader:
                 batch_size=labels.shape[0]
 
                 imgs=imgs.to(self.device)
