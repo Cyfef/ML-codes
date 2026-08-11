@@ -217,6 +217,7 @@ __marimo__/
 /Data/MNIST/
 /Data/Carvana_segmentation/
 /Data/shapenetcore_partanno_segmentation/
+/Data/COCO_captioning/
 
 
 # vscode
@@ -225,3 +226,5 @@ __marimo__/
 # wandb
 /CV/UNet/wandb/
 /CV/PointNet/wandb/
+/CV/RNN/wandb/
+/CV/Transformer/wandb/

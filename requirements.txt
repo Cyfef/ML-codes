@@ -5,6 +5,7 @@ pandas
 
 matplotlib
 tqdm
+h5py
 
 ipykernel
 ipywidgets

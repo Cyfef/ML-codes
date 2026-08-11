@@ -6,20 +6,21 @@ from typing import Dict, Any, Optional
 # ============================================================
 # 1️⃣ 【CONFIGURATION ZONE】 – All WandB settings are here.
 # ============================================================
-WANDB_PROJECT = "UNet"                     # Project name
+WANDB_PROJECT = "RNN"                     # Project name
 WANDB_ENTITY = None                        # Team name (None for personal account)
-WANDB_TAGS = ["UNet", "Carvana"]           # Experiment tags
+WANDB_TAGS = ["RNN", "COCO"]           # Experiment tags
 WANDB_NAME = "run_v1"                      # Run name 
 WANDB_MODE = os.getenv("WANDB_MODE", "online")  # online / offline / dryrun
 
 # Default hyperparameters (automatically logged to WandB)
 DEFAULT_CONFIG = {
-    "learning_rate": 1e-3,
+    "learning_rate": 5e-3,
     "batch_size": 32,
-    "epochs": 30,
+    "num_epochs": 10,
     "optimizer": "Adam",
-    "model_arch": "UNet",
-    "dataset": "Carvana",
+    "scheduler": "StepLR",
+    "model_arch": "RNN",
+    "dataset": "COCO",
 }
 # ============================================================
 
