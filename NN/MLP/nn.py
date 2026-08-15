@@ -8,8 +8,8 @@ class Linear:
         self.W = torch.randn(in_dim, out_dim) * (2.0 / in_dim)**0.5     # (in_dim,out_dim)
         self.b = torch.zeros(out_dim)          # (out_dim,)
 
-        self.grad_W = None
-        self.grad_b = None
+        self.grad_W = torch.zeros_like(self.W)
+        self.grad_b = torch.zeros_like(self.b)
 
         self.cache = None
 
@@ -30,8 +30,8 @@ class Linear:
 
         dx = dout @ self.W.T
 
-        self.grad_W = x.T @ dout
-        self.grad_b = dout.sum(axis=0)
+        self.grad_W.copy_(x.T @ dout)
+        self.grad_b.copy_(dout.sum(axis=0))
 
         return dx   
 

@@ -1,5 +1,5 @@
 import torch
-from typing import List
+from typing import List,Tuple
 
 class SGD:
     def __init__(self, 
@@ -43,9 +43,8 @@ class RMSprop:
             grad = p['grad']
             if self.weight_decay != 0:
                 grad = grad + self.weight_decay * p['param']
-            # 更新平方梯度的指数移动平均
+
             self.v[i] = self.beta * self.v[i] + (1 - self.beta) * (grad ** 2)
-            # 更新参数
             p['param'] -= self.lr * grad / (torch.sqrt(self.v[i]) + self.eps)
 
     def zero_grad(self):
@@ -53,14 +52,19 @@ class RMSprop:
             p['grad'].zero_()
 
 
-
 class Adam:
-    def __init__(self, params, lr=0.001, betas=(0.9, 0.999), eps=1e-8, weight_decay=0.0):
+    def __init__(self, 
+                 params:List[dict], 
+                 lr:float=0.001, 
+                 betas:Tuple[float]=(0.9, 0.999), 
+                 eps:float=1e-8, 
+                 weight_decay:float=0.0):
         self.params = params
         self.lr = lr
         self.betas = betas
         self.eps = eps
         self.weight_decay = weight_decay
+
         self.m = [torch.zeros_like(p['param']) for p in params]
         self.v = [torch.zeros_like(p['param']) for p in params]
         self.t = 0
@@ -69,10 +73,13 @@ class Adam:
         self.t += 1
         for i, p in enumerate(self.params):
             grad = p['grad'] + self.weight_decay * p['param']
+
             self.m[i] = self.betas[0] * self.m[i] + (1 - self.betas[0]) * grad
             self.v[i] = self.betas[1] * self.v[i] + (1 - self.betas[1]) * (grad ** 2)
+
             m_hat = self.m[i] / (1 - self.betas[0] ** self.t)
             v_hat = self.v[i] / (1 - self.betas[1] ** self.t)
+            
             p['param'] -= self.lr * m_hat / (torch.sqrt(v_hat) + self.eps)
 
     def zero_grad(self):
