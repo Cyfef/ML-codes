@@ -228,3 +228,8 @@ __marimo__/
 /CV/PointNet/wandb/
 /CV/RNN/wandb/
 /CV/Transformer/wandb/
+
+/NN/PointNet/wandb
+/NN/RNN/wandb
+/NN/Transformer/wandb
+/NN/UNet/wandb
